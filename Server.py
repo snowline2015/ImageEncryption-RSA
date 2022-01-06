@@ -33,7 +33,7 @@ def create_account(account_json):
 
     n = len(accounts_list)
     total = (n + 1) * (n + 2) / 2
-    new_account['id'] = total - sum
+    new_account['id'] = total - sum - 1
 
     accounts_list.append(new_account)
     with open("database/account.txt", 'w') as f:
