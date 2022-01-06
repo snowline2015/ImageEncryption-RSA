@@ -1,16 +1,14 @@
 from flask import Flask, jsonify
-import requests
 import json
 
 app = Flask(__name__)
 
-f = open("database/account.txt")
-accounts_list = json.loads(f.read())
+accounts_list = json.loads(open("database/account.txt").read())
 
 
 @app.route('/')
 def index() :
-    return "fuck you"
+    return "Things just got out of hand - Supreme Strange"
 
 
 @app.route('/account', methods=['GET'])
@@ -25,8 +23,22 @@ def get_account(account_id):
 
 @app.route('/account', methods=['POST'])
 def create_account(account_json):
-    accounts_list.append(account_json)
-    return jsonify({"Created": account_json})
+    new_account = json.loads(account_json)
+
+    sum = 0
+    for account in accounts_list:
+        if account['name'] == new_account['name']:
+            return jsonify({"Error": "Account already exists"})
+        sum += int(account['id']) + 1
+
+    n = len(accounts_list)
+    total = (n + 1) * (n + 2) / 2
+    new_account['id'] = total - sum
+
+    accounts_list.append(new_account)
+    with open("database/account.txt", 'w') as f:
+        json.dump(accounts_list, f, indent=4)
+    return jsonify({"Created": new_account})
 
 
 @app.route('/account/<int:account_id>', methods=['PUT'])
@@ -37,9 +49,12 @@ def update_account(account_id, info):
 @app.route('/account/<int:account_id>', methods=['DELETE'])
 def delete_account(account_id):
     accounts_list.remove(accounts_list[account_id])
-    return jsonify(result="success")
+    with open("database/account.txt", 'w') as f:
+        json.dump(accounts_list, f, indent=4)
+    return jsonify({"Deleted": account_id})
 
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
