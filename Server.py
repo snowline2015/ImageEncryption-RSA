@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import json
 
 app = Flask(__name__)
@@ -22,9 +22,8 @@ def get_account(account_id):
 
 
 @app.route('/account', methods=['POST'])
-def create_account(account_json):
-    new_account = json.loads(account_json)
-
+def create_account():
+    new_account = request.get_json()
     sum = 0
     for account in accounts_list:
         if account['name'] == new_account['name']:
@@ -48,10 +47,11 @@ def update_account(account_id, info):
 
 @app.route('/account/<int:account_id>', methods=['DELETE'])
 def delete_account(account_id):
+    temp = accounts_list[account_id]
     accounts_list.remove(accounts_list[account_id])
     with open("database/account.txt", 'w') as f:
         json.dump(accounts_list, f, indent=4)
-    return jsonify({"Deleted": account_id})
+    return jsonify({"Deleted": temp})
 
 
 if __name__ == '__main__':
