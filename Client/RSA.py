@@ -1,6 +1,8 @@
 import random
 import cv2
+import numpy as np
 from copy import deepcopy
+from PIL import Image
 
 
 def bezout(a, b, x2=1, x1=0, y2=0, y1=1):
@@ -69,30 +71,30 @@ def RSA_key_generation():
     return e, n, d
 
 
-def encrypt_image(img, e, n):
-    enc = [[0 for x in range(3000)] for y in range(3000)]
-    for i in range(100, 700):
-        for j in range(100, 1000):
-            r, g, b = img[i, j]
-            C1 = pow(r, e, n)
-            C2 = pow(g, e, n)
-            C3 = pow(b, e, n)
-            enc[i][j] = [C1, C2, C3]
-            C1 = C1 % 256
-            C2 = C2 % 256
-            C3 = C3 % 256
-            img[i, j] = [C1, C2, C3]
-    return img
+def encrypt_image():
+    # Key generation
+    e, n, d = RSA_key_generation()
+
+    img1 = (Image.open('test1.jpg').convert('L'))
+    img1.show()   # showing the image that will be encrypted
+
+    img = np.array((Image.open('test1.jpg').convert('L')))  # converting the RGB image to greyscale  using the .convert() and 'L' aurgument
+    img32 = np.array(img, dtype=np.uint32)  # converting the uint8 type numpy.ndarray to uint32 type
+    row, col = img.shape[0], img.shape[1]  # counting the no of rows and cols
+    # Start Encrypt
+    for i in range(0, row):
+        for j in range(0, col):
+            x = img32[i][j]
+            x = (pow(x, e) % n)
+            img32[i][j] = x
+    print('\n\nEncrypted image: ')
+    print(img32)
+    imgOut = Image.fromarray(img32)  # making an image from the matrix
+    #imgOut.show()
+    return imgOut
 
 
 def decrypt_image(encrypted_img, d, n):
-    for i in range(100, 700):
-        for j in range(100, 1000):
-            r, g, b = encrypted_img[i][j]
-            M1 = pow(r, d, n)
-            M2 = pow(g, d, n)
-            M3 = pow(b, d, n)
-            encrypted_img[i, j] = [M1, M2, M3]
     return encrypted_img
 
 
