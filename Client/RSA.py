@@ -70,22 +70,20 @@ def RSA_key_generation():
     return e, n, d
 
 
-def encrypt_image():
+def encrypt_image(img, e, n):
     # Key generation
     e, n, d = RSA_key_generation()
 
-    img = np.array((Image.open('test1.jpg').convert('L')))  # converting the RGB image to greyscale  using the .convert() and 'L' aurgument
-    img32 = np.array(img, dtype=np.uint32)  # converting the uint8 type numpy.ndarray to uint32 type
+    # img = np.array((Image.open('test1.jpg').convert('L')))  # converting the RGB image to greyscale  using the .convert() and 'L' aurgument
+    img_en = np.array(img, dtype=np.uint32)  # converting the uint8 type numpy.ndarray to uint32 type
     row, col = img.shape[0], img.shape[1]  # counting the no of rows and cols
     # Start Encrypt
     for i in range(0, row):
         for j in range(0, col):
-            x = img32[i][j]
+            x = img_en[i][j]
             x = (pow(x, e) % n)
-            img32[i][j] = x
-    print('\n\nEncrypted image: ')
-    print(img32)
-    imgOut = Image.fromarray(img32)  # making an image from the matrix
+            img_en[i][j] = x
+    imgOut = Image.fromarray(img_en)  # making an image from the matrix
     #imgOut.show()
     return imgOut
 
