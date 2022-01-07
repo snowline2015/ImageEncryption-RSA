@@ -1,5 +1,4 @@
 import random
-import cv2
 import numpy as np
 from copy import deepcopy
 from PIL import Image
@@ -75,9 +74,6 @@ def encrypt_image():
     # Key generation
     e, n, d = RSA_key_generation()
 
-    img1 = (Image.open('test1.jpg').convert('L'))
-    img1.show()   # showing the image that will be encrypted
-
     img = np.array((Image.open('test1.jpg').convert('L')))  # converting the RGB image to greyscale  using the .convert() and 'L' aurgument
     img32 = np.array(img, dtype=np.uint32)  # converting the uint8 type numpy.ndarray to uint32 type
     row, col = img.shape[0], img.shape[1]  # counting the no of rows and cols
@@ -95,7 +91,17 @@ def encrypt_image():
 
 
 def decrypt_image(encrypted_img, d, n):
-    return encrypted_img
+    img = np.array(Image.open(crypted_img).convert('L'))
+    img_de = np.array(img, dtype=np.uint32)
+    r, c = img_de.shape[0], img_de.shape[1]
+    for i1 in range(0, r):
+        for j1 in range(0, c):
+            x1 = img_de[i1][j1]
+            x1 = (pow(x, d) % n)
+            img_de[i][j] = x1
+    imgOut1 = Image.fromarray(img_de)
+    # imgOut1.show()
+    return imgOut1
 
 
 # e, n, d = RSA_key_generation()
