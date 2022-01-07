@@ -1,4 +1,6 @@
 import random
+import cv2
+from copy import deepcopy
 
 
 def bezout(a, b, x2=1, x1=0, y2=0, y1=1):
@@ -65,6 +67,33 @@ def RSA_key_generation():
         e = random.randint(2, euler)
     d = bezout(e, euler)[2] % euler
     return e, n, d
+
+
+def encrypt_image(img, e, n):
+    enc = [[0 for x in range(3000)] for y in range(3000)]
+    for i in range(100, 700):
+        for j in range(100, 1000):
+            r, g, b = img[i, j]
+            C1 = pow(r, e, n)
+            C2 = pow(g, e, n)
+            C3 = pow(b, e, n)
+            enc[i][j] = [C1, C2, C3]
+            C1 = C1 % 256
+            C2 = C2 % 256
+            C3 = C3 % 256
+            img[i, j] = [C1, C2, C3]
+    return img
+
+
+def decrypt_image(encrypted_img, d, n):
+    for i in range(100, 700):
+        for j in range(100, 1000):
+            r, g, b = encrypted_img[i][j]
+            M1 = pow(r, d, n)
+            M2 = pow(g, d, n)
+            M3 = pow(b, d, n)
+            encrypted_img[i, j] = [M1, M2, M3]
+    return encrypted_img
 
 
 # e, n, d = RSA_key_generation()
