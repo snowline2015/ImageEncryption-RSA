@@ -27,11 +27,6 @@
                       </div>
       
                       <div class="form-floating mb-4">
-                        <input type="email" class="form-control" id="floatingEmail" placeholder="Input Email">
-                        <label for="floatingName">Email</label>
-                      </div>
-      
-                      <div class="form-floating mb-4">
                         <input type="password" class="form-control" id="floatingPassword" placeholder="Input Password">
                         <label for="floatingPassword">Password</label>
                       </div>
@@ -44,7 +39,7 @@
                       <div class="form-check d-flex justify-content-center mb-5">
                         <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg"/>
                         <label class="form-check-label" for="form2Example3g">
-                          I agree all statements in <a href="terms.html" class="text-body"><u>Terms of service</u></a>
+                          I agree all statements in <a href="{{ url_for('terms') }}" class="text-body"><u>Terms of service</u></a>
                         </label>
                       </div>
       

@@ -54,7 +54,16 @@ def delete_account(account_id):
     return jsonify({"Deleted": temp})
 
 
+@app.route('/', methods=['GET'])
+def login():
+    login_account = request.get_json()
+    for account in accounts_list:
+        if account['name'] == login_account['name'] and account['password'] == login_account['password']:
+            return True
+    return False
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=50000)
+    app.run(debug=True)
 
 
