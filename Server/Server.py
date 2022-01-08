@@ -11,14 +11,14 @@ def index():
     return "Things just got out of hand - Supreme Strange"
 
 
-@app.route('/account', methods=['GET'])
-def get_account_list():
-    return jsonify(accounts_list)
+# @app.route('/account', methods=['GET'])
+# def get_account_list():
+#     return jsonify(accounts_list)
 
 
-@app.route('/account/<int:account_id>', methods=['GET'])
-def get_account(account_id):
-    return jsonify(accounts_list[account_id])
+# @app.route('/account/<int:account_id>', methods=['GET'])
+# def get_account(account_id):
+#     return jsonify(accounts_list[account_id])
 
 
 @app.route('/register', methods=['POST'])
@@ -32,7 +32,7 @@ def register():
 
     n = len(accounts_list)
     total = (n + 1) * (n + 2) / 2
-    new_account['id'] = total - sum - 1
+    new_account['id'] = int(total - sum - 1)
 
     accounts_list.append(new_account)
     with open("database/account.txt", 'w') as f:
@@ -40,18 +40,18 @@ def register():
     return jsonify({"status": "true"})
 
 
-@app.route('/account/<int:account_id>', methods=['PUT'])
-def update_account(account_id, info):
-    return "fuck you"
+# @app.route('/account/<int:account_id>', methods=['PUT'])
+# def update_account(account_id, info):
+#     return "fuck you"
 
 
-@app.route('/account/<int:account_id>', methods=['DELETE'])
-def delete_account(account_id):
-    temp = accounts_list[account_id]
-    accounts_list.remove(accounts_list[account_id])
-    with open("database/account.txt", 'w') as f:
-        json.dump(accounts_list, f, indent=4)
-    return jsonify({"Deleted": temp})
+# @app.route('/account/<int:account_id>', methods=['DELETE'])
+# def delete_account(account_id):
+#     temp = accounts_list[account_id]
+#     accounts_list.remove(accounts_list[account_id])
+#     with open("database/account.txt", 'w') as f:
+#         json.dump(accounts_list, f, indent=4)
+#     return jsonify({"Deleted": temp})
 
 
 @app.route('/login', methods=['GET'])
