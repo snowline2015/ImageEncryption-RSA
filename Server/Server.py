@@ -21,13 +21,13 @@ def get_account(account_id):
     return jsonify(accounts_list[account_id])
 
 
-@app.route('/account', methods=['POST'])
-def create_account():
+@app.route('/register', methods=['POST'])
+def register():
     new_account = request.get_json()
     sum = 0
     for account in accounts_list:
         if account['name'] == new_account['name']:
-            return jsonify({"Error": "Account already exists"})
+            return jsonify({"status": "Account already exists"})
         sum += int(account['id']) + 1
 
     n = len(accounts_list)
@@ -37,7 +37,7 @@ def create_account():
     accounts_list.append(new_account)
     with open("database/account.txt", 'w') as f:
         json.dump(accounts_list, f, indent=4)
-    return jsonify({"Created": new_account})
+    return jsonify({"status": "true"})
 
 
 @app.route('/account/<int:account_id>', methods=['PUT'])

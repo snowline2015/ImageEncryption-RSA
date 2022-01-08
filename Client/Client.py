@@ -41,8 +41,23 @@ def login():
             flash("Incorrect username or password")
     return render_template("login.html")
 
-@app.route("/signup")
+@app.route("/signup", methods=['GET','POST'])
 def signup():
+    if request.method == 'POST':
+        usrname = request.form.get("usrname")
+        pssword = request.form.get("pssword")
+        pssword2 = request.form.get("pssword2")
+
+        e, n, _ = RSA_key_generation()
+        
+        response = requests.post(url + 'register', json={"name": usrname,"password": pssword,"id": "","pub_rsa": [e,n]})
+        response = json.loads(response.text)
+
+        if response['status'] == 'true':
+            return redirect("login")
+        else:
+            flash(response['status'])
+
     return render_template("signup.html")
 
 @app.route("/terms")
