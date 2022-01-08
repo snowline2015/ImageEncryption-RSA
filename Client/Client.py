@@ -32,9 +32,10 @@ def login():
         usrname = request.form.get("usrname")
         pssword = request.form.get("pssword")
 
-        response = requests.get(url, json={"name": usrname,"pass": pssword})
+        response = requests.get(url + 'login', json={"name": usrname,"password": pssword})
+        response = json.loads(response.text)
 
-        if response == True:
+        if response['status'] == "true":
             return redirect("home")
         else:
             flash("Incorrect username or password")

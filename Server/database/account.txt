@@ -1,7 +1,7 @@
 [
     {
         "name": "snowline2015",
-        "pass": "123",
+        "password": "123",
         "id": "0",
         "pub_rsa": [
             "",

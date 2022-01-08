@@ -1,2 +1,4 @@
 https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request
 https://www.w3schools.com/python/ref_requests_post.asp
+https://stackoverflow.com/questions/29024415/flask-httpauth-verify-password-function-not-receiving-username-or-password
+https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask

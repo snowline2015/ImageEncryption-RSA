@@ -7,7 +7,7 @@ accounts_list = json.loads(open("database/account.txt").read())
 
 
 @app.route('/')
-def index() :
+def index():
     return "Things just got out of hand - Supreme Strange"
 
 
@@ -54,16 +54,16 @@ def delete_account(account_id):
     return jsonify({"Deleted": temp})
 
 
-@app.route('/', methods=['GET'])
+@app.route('/login', methods=['GET'])
 def login():
     login_account = request.get_json()
     for account in accounts_list:
         if account['name'] == login_account['name'] and account['password'] == login_account['password']:
-            return True
-    return False
+            return jsonify({"status": "true"})
+    return jsonify({"status": "false"})
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
 
 
