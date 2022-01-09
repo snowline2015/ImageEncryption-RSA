@@ -1,5 +1,8 @@
 from flask import Flask, jsonify, request
 import json
+from PIL import Image
+import io
+import base64
 
 app = Flask(__name__)
 
@@ -62,6 +65,16 @@ def login():
             return jsonify({"status": "true"})
     return jsonify({"status": "false"})
 
+
+@app.route('/upload', methods=['POST'])
+def test():
+    # if not request.json or 'image' not in request.json:
+    #     abort(400)
+    img = request.json['image']
+    img = base64.b64decode(img.encode('utf-8'))
+    img = Image.open(io.BytesIO(img))
+    img.save(request.json['filename'])
+    return jsonify({"status": "true"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

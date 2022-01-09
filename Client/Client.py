@@ -1,9 +1,11 @@
 import requests
 import json
-from Client.RSA import encrypt_image
-from RSA import RSA_key_generation
+from RSA import RSA_key_generation, encrypt_image, decrypt_image
 from flask import Flask, render_template, url_for, request, redirect, flash
-import cv2
+from PIL import Image
+import numpy as np
+import io
+import base64
 
 
 app = Flask(__name__)
@@ -75,9 +77,17 @@ def home():
         uploaded_file = request.files['file']
         if uploaded_file.filename != '':
             uploaded_file.save("images/" + uploaded_file.filename)
-            img = cv2.imread("/images/" + uploaded_file.filename, 0)
-            img = encrypt_image(img, 15491287097074226203, 28681178489838461957)
-            response = requests.post(url + "test", files={'file': (uploaded_file.filename, open(uploaded_file.filename, 'rb'))})
+            img = np.array((Image.open('images/' + uploaded_file.filename).convert('L')))
+            img = encrypt_image(img, 70218557, 1987526269)
+
+            imgByteArr = io.BytesIO()
+            img.save(imgByteArr, format='PNG')
+            imgByteArr = imgByteArr.getvalue()
+            imgByteArr = base64.b64encode(imgByteArr)
+
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            payload = json.dumps({"image": imgByteArr.decode('utf-8'), "filename": uploaded_file.filename})
+            response = requests.post(url + "upload", data=payload, headers=headers)
 
             response = json.loads(response.text)
             flash(response['status'])
