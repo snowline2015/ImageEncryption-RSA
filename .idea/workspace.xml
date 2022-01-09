@@ -159,13 +159,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Client/Client.py</url>
-          <line>99</line>
-          <option name="timeStamp" value="27" />
+          <line>96</line>
+          <option name="timeStamp" value="33" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Server/Server.py</url>
-          <line>77</line>
-          <option name="timeStamp" value="29" />
+          <line>85</line>
+          <option name="timeStamp" value="34" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

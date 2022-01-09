@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_httpauth import HTTPBasicAuth
 import json
 from PIL import Image
 import io
@@ -6,6 +7,16 @@ import base64
 import os
 
 app = Flask(__name__)
+
+
+auth = HTTPBasicAuth()
+@auth.verify_password
+def verify_password(username, password):
+    for account in accounts_list:
+        if account['name'] == username:
+            return account['password'] == password
+    return False
+
 
 accounts_list = json.loads(open("database/account.txt").read())
 
@@ -63,12 +74,13 @@ def login():
     login_account = request.get_json()
     for account in accounts_list:
         if account['name'] == login_account['name'] and account['password'] == login_account['password']:
-            return jsonify({"status": "true", "rsa_pub": account['rsa_pub']})
+            return jsonify({"status": "true"})
     return jsonify({"status": "false"})
 
 
-@app.route('/upload', methods=['POST'])
-def test():
+@app.route('/upload', methods=['GET', 'POST'])
+@auth.login_required
+def upload_image():
     # if not request.json or 'image' not in request.json:
     #     abort(400)
     img = request.json['image']
@@ -84,14 +96,18 @@ def test():
     return jsonify({"status": "true"})
 
 
-@app.route('/<str:username>/images', methods=['GET'])
+@app.route('/<username>/images', methods=['GET', 'POST'])
+@auth.login_required
 def get_images_list(username):
     path = 'database/images/' + username
     files = os.listdir(path)
+    isExist = os.path.exists(path)
+    if not isExist:
+        return jsonify([])
     lst = []
     for f in files:
         lst.append(f)
-    return jsonify({"images": json.dumps(lst)})
+    return jsonify(lst)
 
 
 if __name__ == '__main__':

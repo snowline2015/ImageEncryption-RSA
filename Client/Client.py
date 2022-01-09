@@ -94,7 +94,7 @@ def home():
 
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             payload = json.dumps({"image": imgByteArr.decode('utf-8'), "filename": uploaded_file.filename, "username": username})
-            response = requests.post(url + "upload", data=payload, headers=headers)
+            response = requests.post(url + "upload", data=payload, headers=headers, auth=(username, password))
 
             response = json.loads(response.text)
             flash(response['status'])

@@ -1,6 +1,5 @@
 import random
 import numpy as np
-from copy import deepcopy
 from PIL import Image
 
 
@@ -95,7 +94,7 @@ def decrypt_image(encrypted_img, d, n):
             x = pow(x, d) % n
             img_de[i][j] = x
     imgOut = Image.fromarray(img_de)
-    # imgOut1.show()
+    # imgOut.show()
     return imgOut
 
 
