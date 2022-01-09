@@ -83,6 +83,17 @@ def test():
     img.save(path + '/' + request.json['filename'])
     return jsonify({"status": "true"})
 
+
+@app.route('/<str:username>/images', methods=['GET'])
+def get_images_list(username):
+    path = 'database/images/' + username
+    files = os.listdir(path)
+    lst = []
+    for f in files:
+        lst.append(f)
+    return jsonify({"images": json.dumps(lst)})
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 
