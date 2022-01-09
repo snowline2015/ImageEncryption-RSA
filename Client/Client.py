@@ -12,6 +12,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supremestrange'
 url = 'http://127.0.0.1:5000/'
 
+username = ''
+password = ''
+
 # # Get all account
 # response = requests.get(url + 'account')
 
@@ -35,6 +38,10 @@ def login():
     if request.method == 'POST':
         usrname = request.form.get("usrname")
         pssword = request.form.get("pssword")
+
+        global username, password
+        username = usrname
+        password = pssword
 
         response = requests.get(url + 'login', json={"name": usrname,"password": pssword})
 
@@ -86,7 +93,7 @@ def home():
             imgByteArr = base64.b64encode(imgByteArr)
 
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-            payload = json.dumps({"image": imgByteArr.decode('utf-8'), "filename": uploaded_file.filename})
+            payload = json.dumps({"image": imgByteArr.decode('utf-8'), "filename": uploaded_file.filename, "username": username})
             response = requests.post(url + "upload", data=payload, headers=headers)
 
             response = json.loads(response.text)

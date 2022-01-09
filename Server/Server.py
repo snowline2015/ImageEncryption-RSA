@@ -3,6 +3,7 @@ import json
 from PIL import Image
 import io
 import base64
+import os
 
 app = Flask(__name__)
 
@@ -62,7 +63,7 @@ def login():
     login_account = request.get_json()
     for account in accounts_list:
         if account['name'] == login_account['name'] and account['password'] == login_account['password']:
-            return jsonify({"status": "true"})
+            return jsonify({"status": "true", "rsa_pub": account['rsa_pub']})
     return jsonify({"status": "false"})
 
 
@@ -73,7 +74,13 @@ def test():
     img = request.json['image']
     img = base64.b64decode(img.encode('utf-8'))
     img = Image.open(io.BytesIO(img))
-    img.save(request.json['filename'])
+
+    path = 'database/images/' + request.json['username']
+    isExist = os.path.exists(path)
+    if not isExist:
+        os.makedirs(path)
+
+    img.save(path + '/' + request.json['filename'])
     return jsonify({"status": "true"})
 
 if __name__ == '__main__':
