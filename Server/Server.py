@@ -102,10 +102,10 @@ def upload_image():
 @auth.login_required
 def get_images_list(username):
     path = 'database/images/' + username
-    files = os.listdir(path)
     isExist = os.path.exists(path)
     if not isExist:
-        return jsonify([])
+        return jsonify([['no image','']])
+    files = os.listdir(path)
     lst = []
     for f in files:
         lst.append([f, str(round(os.path.getsize(path + '/' + f) / 1024, 2))])
