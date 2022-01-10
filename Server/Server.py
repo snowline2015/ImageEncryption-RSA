@@ -124,7 +124,7 @@ def get_image(username, filename):
     return jsonify(image)
 
 
-@app.route('/<username>/images/share', methods=['POST'])
+@app.route('/<username>/images/share', methods=['GET', 'POST'])
 @auth.login_required
 def share_image(username):
     share_info = request.get_json()
@@ -136,6 +136,11 @@ def share_image(username):
                 os.makedirs(path)
             shutil.copyfile('database/images/' + username + '/' + share_info['filename'],
                             path + '/' + share_info['filename'])
+            with open(path + '/' + share_info['filename'].split('.')[0] + 'txt', 'w') as f:
+                for main_account in accounts_list:
+                    if main_account['name'] == username:
+                        json.dump(main_account['priv_rsa'], f, indent=4)
+                        break
             return jsonify({"status": "true"})
     return jsonify({"status": "Cannot find account with id"})
 

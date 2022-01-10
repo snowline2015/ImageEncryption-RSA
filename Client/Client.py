@@ -67,9 +67,10 @@ def signup():
         if pssword != pssword2:
             flash("Confirm password does not match")
         else:
-            e, n, _ = RSA_key_generation()
+            e, n, d = RSA_key_generation()
             
-            response = requests.post(url + 'register', json={"name": usrname,"password": pssword,"id": "","pub_rsa": [e,n]})
+            response = requests.post(url + 'register', json={"name": usrname,"password": pssword,"id": "",
+                                                             "pub_rsa": [e,n], "priv_rsa": [d,n]})
 
             response = json.loads(response.text)
             if response['status'] == 'true':

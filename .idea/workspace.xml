@@ -27,7 +27,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.Server (1)">
+  <component name="RunManager" selected="Python.Client (1)">
     <configuration name="Client (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="IntroCrypto_Final" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -135,8 +135,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Server (1)" />
         <item itemvalue="Python.Client (1)" />
+        <item itemvalue="Python.Server (1)" />
         <item itemvalue="Python.KeyGeneration" />
         <item itemvalue="Python.Client" />
         <item itemvalue="Python.Server" />
@@ -159,7 +159,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Client/Client.py</url>
-          <line>96</line>
+          <line>97</line>
           <option name="timeStamp" value="33" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
