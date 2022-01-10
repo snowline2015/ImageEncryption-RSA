@@ -12,6 +12,16 @@
 <body>
 
     <section class="vh-100">
+        {% block content %}
+            <div class="container">
+                {% for message in get_flashed_messages() %}
+                <div class="alert alert-danger"> {{ message }} </div>
+                {% endfor %}
+
+                {% block page_content %}{% endblock %}
+            </div>
+        {% endblock %}
+
         <div class="container col-md-7">
             <div class="mt-4 p-5 text-dark rounded">
                 <h2>Upload your Image</h2>

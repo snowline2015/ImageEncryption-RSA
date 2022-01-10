@@ -91,7 +91,7 @@ def home():
 def upload():
     if request.method == 'POST':
         uploaded_file = request.files['file']
-        if uploaded_file.filename != '':
+        if uploaded_file.filename != '' and allowed_file(uploaded_file.filename):
             uploaded_file.save("images/" + uploaded_file.filename)
             img = np.array((Image.open('images/' + uploaded_file.filename).convert('L')))
             img = encrypt_image(img, 70218557, 1987526269)
