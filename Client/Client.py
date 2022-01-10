@@ -153,6 +153,7 @@ def download_all():
         img = np.array(Image.open(io.BytesIO(res['image'].encode())).convert('L'))
         img = decrypt_image(img, int(pri_key[0]), int(pri_key[1]))
         img.save("images/" + f[0])
+    return flash("Downloaded all images")
 
 
 # @app.route("/share", methods=['GET','POST'])
