@@ -93,6 +93,9 @@ def terms():
 def home():
     response = requests.get(url + username + '/images', auth=(username, password))
     response = json.loads(response.text)
+    for f in response:
+        if ".txt" in f[0]:
+            response.remove(f)
     return render_template("home.html", files=response)
 
 @app.route("/upload", methods=['GET','POST'])
@@ -123,10 +126,44 @@ def upload():
     return render_template("upload.html")
 
 
+@app.route("/download-all", methods=['GET','POST'])
+def download_all():
+    response = requests.get(url + username + '/images', auth=(username, password))
+    response = json.loads(response.text)
+    temp = '.txt'
+    pri_key = []
+    for f in response:
+        if ".txt" in f[0]:
+            temp = f[0].replace(".txt", "")
+            res = requests.get(url + username + '/images/download/' + f[0], auth=(username, password))
+            res = json.loads(res.text)
+            for i in res:
+                pri_key.append(i)
+            response.remove(f)
+        if temp in f[0]:
+            res = requests.get(url + username + '/images/download' + f[0], auth=(username, password))
+            res = json.loads(res.text)
+            img = np.array(Image.open(io.BytesIO(res['image'].encode())).convert('L'))
+            img = decrypt_image(img, int(pri_key[0]), int(pri_key[1]))
+            img.save("images/" + f[0])
+            response.remove(f)
+    for f in response:
+        res = requests.get(url + username + '/images/download' + f[0], auth=(username, password))
+        res = json.loads(res.text)
+        img = np.array(Image.open(io.BytesIO(res['image'].encode())).convert('L'))
+        img = decrypt_image(img, int(pri_key[0]), int(pri_key[1]))
+        img.save("images/" + f[0])
+
+
 # @app.route("/share", methods=['GET','POST'])
 # def share():
 #     if request.method == 'POST':
 
+
+@app.route("/logout", methods=['GET','POST'])
+def logout():
+    response = requests.post(url + 'logout')
+    return redirect(url_for('login'))
 
 
 if __name__ == "__main__":

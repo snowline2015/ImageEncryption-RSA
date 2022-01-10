@@ -112,16 +112,19 @@ def get_images_list(username):
     return jsonify(lst)
 
 
-@app.route('/<username>/images/<filename>', methods=['GET'])
+@app.route('/<username>/images/download/<filename>', methods=['GET'])
 @auth.login_required
-def get_image(username, filename):
+def download_file(username, filename):
     path = 'database/images/' + username
     isExist = os.path.exists(path)
     if not isExist:
         return jsonify({"status": "false"})
+    if ".txt" in filename:
+        with open(path + '/' + filename, 'r') as f:
+            return jsonify(f.read())
     with open(path + '/' + filename, 'rb') as f:
         image = f.read()
-    return jsonify(image)
+    return jsonify({"image": image.decode()})
 
 
 @app.route('/<username>/images/share', methods=['GET', 'POST'])
@@ -143,6 +146,30 @@ def share_image(username):
                         break
             return jsonify({"status": "true"})
     return jsonify({"status": "Cannot find account with id"})
+
+
+# @app.route('/<username>/images/download/<filename>/<int:id>', methods=['GET'])
+# @auth.login_required
+# def download_shared_image(username, filename, id):
+#     for account in accounts_list:
+#         if account['id'] == id:
+#             path = 'database/images/' + account['name']
+#             isExist = os.path.exists(path)
+#             if not isExist:
+#                 return jsonify({"status": "false"})
+#             with open(path + '/' + filename.split('.')[0] + 'txt', 'r') as f:
+#                 priv_rsa = json.load(f)
+#             with open(path + '/' + filename, 'rb') as f:
+#                 image = f.read()
+#             return jsonify(image)
+#     return jsonify({"status": "Cannot find account with id"})
+
+
+@app.route('/logout', methods=['GET'])
+@auth.login_required
+def logout():
+    auth.current_user = None
+    return jsonify({"status": "true"})
 
 
 if __name__ == '__main__':
