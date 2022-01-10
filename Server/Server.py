@@ -5,6 +5,7 @@ from PIL import Image
 import io
 import base64
 import os
+import shutil
 
 app = Flask(__name__)
 
@@ -81,8 +82,9 @@ def login():
 @app.route('/upload', methods=['GET', 'POST'])
 @auth.login_required
 def upload_image():
-    # if not request.json or 'image' not in request.json:
-    #     abort(400)
+    if not request.json or 'image' not in request.json:
+        return jsonify({"status": "false"})
+
     img = request.json['image']
     img = base64.b64decode(img.encode('utf-8'))
     img = Image.open(io.BytesIO(img))
@@ -96,7 +98,7 @@ def upload_image():
     return jsonify({"status": "true"})
 
 
-@app.route('/<username>/images', methods=['GET', 'POST'])
+@app.route('/<username>/images', methods=['GET'])
 @auth.login_required
 def get_images_list(username):
     path = 'database/images/' + username
@@ -106,8 +108,36 @@ def get_images_list(username):
         return jsonify([])
     lst = []
     for f in files:
-        lst.append(f)
+        lst.append(f + '\n' + str(round(os.path.getsize(path + '/' + f) / 1024, 2)))
     return jsonify(lst)
+
+
+@app.route('/<username>/images/<filename>', methods=['GET'])
+@auth.login_required
+def get_image(username, filename):
+    path = 'database/images/' + username
+    isExist = os.path.exists(path)
+    if not isExist:
+        return jsonify({"status": "false"})
+    with open(path + '/' + filename, 'rb') as f:
+        image = f.read()
+    return jsonify(image)
+
+
+@app.route('/<username>/images/share', methods=['POST'])
+@auth.login_required
+def share_image(username):
+    share_info = request.get_json()
+    for account in accounts_list:
+        if account['id'] == share_info['id']:
+            path = 'database/images/' + account['name']
+            isExist = os.path.exists(path)
+            if not isExist:
+                os.makedirs(path)
+            shutil.copyfile('database/images/' + username + '/' + share_info['filename'],
+                            path + '/' + share_info['filename'])
+            return jsonify({"status": "true"})
+    return jsonify({"status": "Cannot find account with id"})
 
 
 if __name__ == '__main__':
