@@ -75,7 +75,7 @@ def login():
     login_account = request.get_json()
     for account in accounts_list:
         if account['name'] == login_account['name'] and account['password'] == login_account['password']:
-            return jsonify({"status": "true"})
+            return jsonify({"pub_rsa": account['pub_rsa'], "priv_rsa": account["priv_rsa"]})
     return jsonify({"status": "false"})
 
 
@@ -95,7 +95,7 @@ def upload_image():
         os.makedirs(path)
 
     img.save(path + '/' + request.json['filename'])
-    return jsonify({"status": "true"})
+    return jsonify({"status": "upload_success"})
 
 
 @app.route('/<username>/images', methods=['GET'])

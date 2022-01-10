@@ -14,6 +14,8 @@ url = 'http://127.0.0.1:5000/'
 
 username = ''
 password = ''
+pub_rsa = None
+priv_rsa = None
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
@@ -51,10 +53,13 @@ def login():
         response = requests.get(url + 'login', json={"name": usrname,"password": pssword})
 
         response = json.loads(response.text)
-        if response['status'] == "true":
-            return redirect(url_for('home'))
-        else:
+        if 'status' in response and response['status'] == "false":
             flash("Incorrect username or password")
+        else:
+            global pub_rsa, priv_rsa
+            pub_rsa = response["pub_rsa"]
+            priv_rsa = response["priv_rsa"]
+            return redirect(url_for('home'))
     return render_template("login.html")
 
 @app.route("/signup", methods=['GET','POST'])
@@ -97,7 +102,7 @@ def upload():
         if uploaded_file.filename != '' and allowed_file(uploaded_file.filename):
             uploaded_file.save("images/" + uploaded_file.filename)
             img = np.array((Image.open('images/' + uploaded_file.filename).convert('L')))
-            img = encrypt_image(img, 70218557, 1987526269)
+            img = encrypt_image(img, int(pub_rsa[0]), int(priv_rsa[1]))
 
             imgByteArr = io.BytesIO()
             img.save(imgByteArr, format='PNG')
@@ -116,6 +121,12 @@ def upload():
 
         return redirect(url_for('home'))
     return render_template("upload.html")
+
+
+# @app.route("/share", methods=['GET','POST'])
+# def share():
+#     if request.method == 'POST':
+
 
 
 if __name__ == "__main__":
