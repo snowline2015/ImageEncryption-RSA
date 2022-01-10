@@ -12,17 +12,17 @@
 <body>
 
     <section class="vh-100">
-        {% block content %}
-            <div class="container">
-                {% for message in get_flashed_messages() %}
-                <div class="alert alert-danger"> {{ message }} </div>
-                {% endfor %}
-
-                {% block page_content %}{% endblock %}
-            </div>
-        {% endblock %}
-
         <div class="container col-md-7">
+            {% block content %}
+                <div class="container">
+                    {% for message in get_flashed_messages() %}
+                    <div class="alert alert-danger"> {{ message }} </div>
+                    {% endfor %}
+
+                    {% block page_content %}{% endblock %}
+                </div>
+            {% endblock %}
+
             <div class="mt-4 p-5 text-dark rounded">
                 <h2>Upload your Image</h2>
                 <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
@@ -36,6 +36,7 @@
                 </form>
                 <img id="frame" src="" class="img-fluid" />
             </div>
+        </div>
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

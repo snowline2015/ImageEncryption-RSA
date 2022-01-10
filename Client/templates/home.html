@@ -147,9 +147,7 @@
       <div class="container">
         <div class="row clearfix">
 
-          <!--
-          {% if filenames %}
-            {% for filename in filenames %}
+            {% for file in files %}
               <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="card">
                   <div class="file">
@@ -166,18 +164,17 @@
                         <i class="far fa-image "></i>
                       </div>
                       <div class="file-name">
-                        <p class="m-b-5 text-muted">Document_2017.doc</p>
-                        <small>Size: 42KB</small>
+                        <p class="m-b-5 text-muted">{{ file[0] }}</p>
+                        <small>Size: {{ file[1] }}</small>
                       </div>
                     </a>
                   </div>
                 </div>
               </div>
             {% endfor %}
-          {% endif %}
-          -->
+         
 
-          <div class="col-lg-3 col-md-4 col-sm-12">
+          <!-- <div class="col-lg-3 col-md-4 col-sm-12">
             <div class="card">
               <div class="file">
                 <a href="#">
@@ -452,7 +449,7 @@
                 </a>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

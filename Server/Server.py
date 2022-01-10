@@ -108,7 +108,7 @@ def get_images_list(username):
         return jsonify([])
     lst = []
     for f in files:
-        lst.append(f + '\n' + str(round(os.path.getsize(path + '/' + f) / 1024, 2)))
+        lst.append([f, str(round(os.path.getsize(path + '/' + f) / 1024, 2))])
     return jsonify(lst)
 
 

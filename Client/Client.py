@@ -85,7 +85,9 @@ def terms():
 
 @app.route("/home", methods=['GET','POST'])
 def home():
-    return render_template("home.html")
+    response = requests.get(url + username + '/images', auth=(username, password))
+    response = json.loads(response.text)
+    return render_template("home.html", files=response)
 
 @app.route("/upload", methods=['GET','POST'])
 def upload():
@@ -107,6 +109,9 @@ def upload():
 
             response = json.loads(response.text)
             flash(response['status'])
+        else:
+            flash("Wrong file type chosen")
+            return redirect(url_for('upload'))
 
         return redirect(url_for('home'))
     return render_template("upload.html")
