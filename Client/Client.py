@@ -96,7 +96,7 @@ def home():
     for f in response:
         if ".txt" in f[0]:
             response.remove(f)
-    return render_template("home.html", files=response)
+    return render_template("home.html", files=response, user=username)
 
 @app.route("/upload", methods=['GET','POST'])
 def upload():
@@ -156,9 +156,15 @@ def download_all():
     return flash("Downloaded all images")
 
 
-# @app.route("/share", methods=['GET','POST'])
-# def share():
-#     if request.method == 'POST':
+@app.route("/share", methods=['GET','POST'])
+def share():
+    if request.method == 'POST':
+        user_id = request.form.get('user-id')
+        response = requests.post(url + username + '/images/share', json={"id": user_id, "filename": filename}, auth=(username, password))
+        response = json.loads(response.text)
+        if response['status'] != 'true':
+            flash(response['status'])
+
 
 
 @app.route("/logout", methods=['GET','POST'])
