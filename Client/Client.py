@@ -160,6 +160,7 @@ def download_all():
 def share():
     if request.method == 'POST':
         user_id = request.form.get('user-id')
+        filename = request.form.get('user-file')
         response = requests.post(url + username + '/images/share', json={"id": user_id, "filename": filename}, auth=(username, password))
         response = json.loads(response.text)
         if response['status'] != 'true':
