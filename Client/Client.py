@@ -218,6 +218,62 @@ def share():
 def download():
     if request.method == 'POST':
         filename = request.form.get('download-file')
+        response = requests.get(url + username + '/images', auth=(username, password))
+        response = json.loads(response.text)
+        for f in response:
+            if filename.split('.')[0] + '_share_key.txt' in f[0]:
+                pri_key = []
+                res = requests.get(url + username + '/images/download/' + f[0], auth=(username, password))
+                res = json.loads(json.loads(res.text))
+                pri_key.append(int(res[0]))
+                pri_key.append(int(res[1]))
+
+                res = requests.get(url + username + '/images/download/' + filename.split('.')[0] + '_enc.txt', auth=(username, password))
+                res = json.loads(res.text)
+
+                res = res['enc'].split(';')
+                count = 4
+                enc = [[0 for x in range(int(res[3]))] for y in range(int(res[2]))]
+                for i in range(int(res[2])):
+                    for j in range(int(res[3])):
+                        if '[' in res[count]:
+                            res[count] = res[count].replace('[', '')
+                            res[count] = res[count].replace(']', '')
+                            enc[i][j] = [int(i) for i in res[count].split(',')]
+                        else:
+                            enc[i][j] = int(res[count])
+                        count += 1
+
+                img = decrypt_image((int(res[0]), int(res[1])), enc, int(pri_key[0]), int(pri_key[1]))
+                for files in response:
+                    if f[0].split('_')[0] in files[0]:
+                        cv2.imwrite('images/' + files[0], img)
+                        break
+                return redirect('home')
+
+        res = requests.get(url + username + '/images/download/' + filename.split('.')[0] + '_enc.txt', auth=(username, password))
+        res = json.loads(res.text)
+        # img = base64.b64decode(res['image'].encode('utf-8'))
+
+        res = res['enc'].split(';')
+        count = 4
+        enc = [[0 for x in range(int(res[3]))] for y in range(int(res[2]))]
+        for i in range(int(res[2])):
+            for j in range(int(res[3])):
+                if '[' in res[count]:
+                    res[count] = res[count].replace('[', '')
+                    res[count] = res[count].replace(']', '')
+                    enc[i][j] = [int(i) for i in res[count].split(',')]
+                else:
+                    enc[i][j] = int(res[count])
+                count += 1
+
+        img = decrypt_image((int(res[0]), int(res[1])), enc, int(priv_rsa[0]), int(priv_rsa[1]))
+        for files in response:
+            if f[0].split('_')[0] in files[0]:
+                cv2.imwrite('images/' + files[0], img)
+                break
+
     return redirect('home')
 
 
