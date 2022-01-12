@@ -155,7 +155,7 @@
       
             <form action="{{ url_for('share') }}" method="post" name="share_form">
               <div class="modal-header">
-                <h4 class="modal-title">Share this image</h4>
+                <h4 class="modal-title">Share image</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
         
@@ -171,6 +171,33 @@
         
               <div class="modal-footer">
                 <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Share</button>
+              </div>
+            </form>
+      
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal download -->
+      <div class="modal" id="myModal2">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+      
+            <form action="{{ url_for('download') }}" method="post" name="download_form">
+              <div class="modal-header">
+                <h4 class="modal-title">Download image</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+        
+              <div class="modal-body">
+                  <div class="mb-0">
+                    <label for="user-file" class="col-form-label">Image File:</label>
+                    <input type="text" class="form-control" name="download-file" id="download-file">
+                  </div>
+              </div>
+        
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Download</button>
               </div>
             </form>
       

@@ -216,7 +216,9 @@ def share():
 
 @app.route("/download", methods=['GET','POST'])
 def download():
-    pass
+    if request.method == 'POST':
+        filename = request.form.get('download-file')
+    return redirect('home')
 
 
 @app.route("/logout", methods=['GET','POST'])
