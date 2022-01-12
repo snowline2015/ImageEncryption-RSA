@@ -136,8 +136,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.Client (1)" />
-        <item itemvalue="Python.test" />
         <item itemvalue="Python.Server (1)" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.KeyGeneration" />
         <item itemvalue="Python.RSA" />
       </list>
@@ -159,7 +159,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Client/Client.py</url>
-          <line>196</line>
+          <line>205</line>
           <option name="timeStamp" value="66" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -178,14 +178,14 @@
           <option name="timeStamp" value="119" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/test.py</url>
-          <line>51</line>
-          <option name="timeStamp" value="132" />
+          <url>file://$PROJECT_DIR$/Client/Client.py</url>
+          <line>192</line>
+          <option name="timeStamp" value="134" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Client/Client.py</url>
-          <line>183</line>
-          <option name="timeStamp" value="134" />
+          <line>171</line>
+          <option name="timeStamp" value="141" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

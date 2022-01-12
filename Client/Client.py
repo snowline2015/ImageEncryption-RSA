@@ -136,31 +136,40 @@ def download_all():
     if request.method == 'POST':
         response = requests.get(url + username + '/images', auth=(username, password))
         response = json.loads(response.text)
-        temp = ''
         pri_key = []
         for f in response:
             if "_share_key.txt" in f[0]:
-                temp = f[0].replace(".txt", "")
+                temp = f[0].replace("_share_key.txt", "")
                 res = requests.get(url + username + '/images/download/' + f[0], auth=(username, password))
-                res = json.loads(res.text)
-                for i in res:
-                    pri_key.append(i)
+                res = json.loads(json.loads(res.text))
+                pri_key.append(int(res[0]))
+                pri_key.append(int(res[1]))
                 response.remove(f)
 
-                for i in response:
-                    if temp in i[0]:
-                        res = requests.get(url + username + '/images/download/' + i[0], auth=(username, password))
+                for k in response:
+                    if (temp + "_enc.txt") in k[0]:
+                        res = requests.get(url + username + '/images/download/' + k[0], auth=(username, password))
                         res = json.loads(res.text)
 
-                        img = base64.b64decode(res['image'].encode('utf-8'))
+                        res = res['enc'].split(';')
+                        count = 4
+                        enc = [[0 for x in range(int(res[3]))] for y in range(int(res[2]))]
+                        for i in range(int(res[2])):
+                            for j in range(int(res[3])):
+                                if '[' in res[count]:
+                                    res[count] = res[count].replace('[', '')
+                                    res[count] = res[count].replace(']', '')
+                                    enc[i][j] = [int(i) for i in res[count].split(',')]
+                                else:
+                                    enc[i][j] = int(res[count])
+                                count += 1
 
-                        img_as_np = np.frombuffer(img, dtype=np.uint8)
-                        img = cv2.imdecode(img_as_np, cv2.IMREAD_COLOR)
-
-                        img = decrypt_image(img, int(pri_key[0]), int(pri_key[1]))
-                        img.save("images/" + i[0])
-                        response.remove(i)
-
+                        img = decrypt_image((int(res[0]), int(res[1])), enc, int(pri_key[0]), int(pri_key[1]))
+                        for files in response:
+                            if f[0].split('_')[0] in files[0]:
+                                cv2.imwrite('images/' + files[0], img)
+                                break
+                        response.remove(k)
         for f in response:
             if '_enc.txt' in f[0]:
                 res = requests.get(url + username + '/images/download/' + f[0], auth=(username, password))
@@ -186,7 +195,7 @@ def download_all():
                         cv2.imwrite('images/' + files[0], img)
                         break
         flash("Downloaded all images")
-    return 'OK'
+    return redirect(url_for('home'))
 
 
 @app.route("/share", methods=['GET','POST'])

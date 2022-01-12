@@ -156,7 +156,9 @@ def share_image(username):
                 os.makedirs(path)
             shutil.copyfile('database/images/' + username + '/' + share_info['filename'],
                             path + '/' + share_info['filename'])
-            with open(path + '/' + share_info['filename'].split('.')[0] + '.txt', 'w') as f:
+            shutil.copyfile('database/images/' + username + '/' + share_info['filename'].split('.')[0] + '_enc.txt',
+                            path + '/' + share_info['filename'].split('.')[0] + '_enc.txt')
+            with open(path + '/' + share_info['filename'].split('.')[0] + '_share_key.txt', 'w') as f:
                 for main_account in accounts_list:
                     if main_account['name'] == username:
                         json.dump(main_account['priv_rsa'], f)
