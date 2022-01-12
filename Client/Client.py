@@ -194,6 +194,9 @@ def share():
     if request.method == 'POST':
         user_id = request.form.get('user-id')
         filename = request.form.get('user-file')
+        if user_id == "" or filename == "":
+            flash("All field must not be empty")
+            return redirect(url_for('home'))
         response = requests.post(url + username + '/images/share', json={"id": user_id, "filename": filename}, auth=(username, password))
         response = json.loads(response.text)
         if response['status'] != 'true':
@@ -202,11 +205,16 @@ def share():
 
 
 
+@app.route("/download", methods=['GET','POST'])
+def download():
+    pass
+
 
 @app.route("/logout", methods=['GET','POST'])
 def logout():
     response = requests.post(url + 'logout', auth=(username, password))
     return redirect(url_for('login'))
+
 
 
 if __name__ == "__main__":
