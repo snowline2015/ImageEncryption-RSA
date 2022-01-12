@@ -6,6 +6,8 @@ import io
 import base64
 import os
 import shutil
+import numpy as np
+import cv2
 
 app = Flask(__name__)
 
@@ -87,14 +89,21 @@ def upload_image():
 
     img = request.json['image']
     img = base64.b64decode(img.encode('utf-8'))
-    img = Image.open(io.BytesIO(img))
+    img_as_np = np.frombuffer(img, dtype=np.uint8)
+    img = cv2.imdecode(img_as_np, cv2.IMREAD_COLOR)
+
+    enc = request.json['enc']
 
     path = 'database/images/' + request.json['username']
     isExist = os.path.exists(path)
     if not isExist:
         os.makedirs(path)
 
-    img.save(path + '/' + request.json['filename'])
+    cv2.imwrite(path + '/' + request.json['filename'], img)
+
+    with open(path + '/' + request.json['filename'].split('.')[0] + '_enc.txt', 'w') as f:
+        f.write(enc)
+
     return jsonify({"status": "upload_success"})
 
 
@@ -119,12 +128,20 @@ def download_file(username, filename):
     isExist = os.path.exists(path)
     if not isExist:
         return jsonify({"status": "false"})
-    if ".txt" in filename:
+    if "_enc.txt" in filename:
+        with open(path + '/' + filename, 'r') as f:
+            return jsonify({"enc": f.read()})
+
+    if "_share_key.txt" in filename:
         with open(path + '/' + filename, 'r') as f:
             return jsonify(f.read())
-    with open(path + '/' + filename, 'rb') as f:
-        image = f.read()
-    return jsonify({"image": image.decode()})
+    # with open(path + '/' + filename, 'rb') as f:
+    #     image = f.read()
+
+    image = cv2.imread(path + '/' + filename, cv2.IMREAD_COLOR)
+    image = cv2.imencode('.jpg', image)[1].tostring()
+
+    return jsonify({"image": base64.b64encode(image).decode('utf-8')})
 
 
 @app.route('/<username>/images/share', methods=['GET', 'POST'])
@@ -132,17 +149,17 @@ def download_file(username, filename):
 def share_image(username):
     share_info = request.get_json()
     for account in accounts_list:
-        if account['id'] == share_info['id']:
+        if account['id'] == int(share_info['id']):
             path = 'database/images/' + account['name']
             isExist = os.path.exists(path)
             if not isExist:
                 os.makedirs(path)
             shutil.copyfile('database/images/' + username + '/' + share_info['filename'],
                             path + '/' + share_info['filename'])
-            with open(path + '/' + share_info['filename'].split('.')[0] + 'txt', 'w') as f:
+            with open(path + '/' + share_info['filename'].split('.')[0] + '.txt', 'w') as f:
                 for main_account in accounts_list:
                     if main_account['name'] == username:
-                        json.dump(main_account['priv_rsa'], f, indent=4)
+                        json.dump(main_account['priv_rsa'], f)
                         break
             return jsonify({"status": "true"})
     return jsonify({"status": "Cannot find account with id"})

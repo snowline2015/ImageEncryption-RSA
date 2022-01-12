@@ -6,6 +6,7 @@ from PIL import Image
 import numpy as np
 import io
 import base64
+import cv2
 
 
 app = Flask(__name__)
@@ -19,8 +20,9 @@ priv_rsa = None
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
+
 def allowed_file(filename):
-	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # # Get all account
 # response = requests.get(url + 'account')
@@ -104,16 +106,19 @@ def upload():
         uploaded_file = request.files['file']
         if uploaded_file.filename != '' and allowed_file(uploaded_file.filename):
             uploaded_file.save("images/" + uploaded_file.filename)
-            img = np.array((Image.open('images/' + uploaded_file.filename).convert('L')))
-            img = encrypt_image(img, int(pub_rsa[0]), int(priv_rsa[1]))
+            img, shape, enc = encrypt_image('images/' + uploaded_file.filename, int(pub_rsa[0]), int(pub_rsa[1]))
 
-            imgByteArr = io.BytesIO()
-            img.save(imgByteArr, format='PNG')
-            imgByteArr = imgByteArr.getvalue()
+            imgByteArr = cv2.imencode('.jpg', img)[1].tostring()
             imgByteArr = base64.b64encode(imgByteArr)
 
+            enc = np.array(enc)
+            enc_str = str(shape[0]) + ';' + str(shape[1]) + ';' + str(enc.shape[0]) + ';' + str(enc.shape[1]) + ';'
+            for i in range(enc.shape[0]):
+                for j in range(enc.shape[1]):
+                    enc_str += str(enc[i][j]) + ';'
+
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-            payload = json.dumps({"image": imgByteArr.decode('utf-8'), "filename": uploaded_file.filename, "username": username})
+            payload = json.dumps({"image": imgByteArr.decode('utf-8'), "filename": uploaded_file.filename, "username": username, "enc": enc_str})
             response = requests.post(url + "upload", data=payload, headers=headers, auth=(username, password))
 
             response = json.loads(response.text)
@@ -128,32 +133,60 @@ def upload():
 
 @app.route("/download-all", methods=['GET','POST'])
 def download_all():
-    response = requests.get(url + username + '/images', auth=(username, password))
-    response = json.loads(response.text)
-    temp = '.txt'
-    pri_key = []
-    for f in response:
-        if ".txt" in f[0]:
-            temp = f[0].replace(".txt", "")
-            res = requests.get(url + username + '/images/download/' + f[0], auth=(username, password))
-            res = json.loads(res.text)
-            for i in res:
-                pri_key.append(i)
-            response.remove(f)
-        if temp in f[0]:
-            res = requests.get(url + username + '/images/download' + f[0], auth=(username, password))
-            res = json.loads(res.text)
-            img = np.array(Image.open(io.BytesIO(res['image'].encode())).convert('L'))
-            img = decrypt_image(img, int(pri_key[0]), int(pri_key[1]))
-            img.save("images/" + f[0])
-            response.remove(f)
-    for f in response:
-        res = requests.get(url + username + '/images/download' + f[0], auth=(username, password))
-        res = json.loads(res.text)
-        img = np.array(Image.open(io.BytesIO(res['image'].encode())).convert('L'))
-        img = decrypt_image(img, int(pri_key[0]), int(pri_key[1]))
-        img.save("images/" + f[0])
-    return flash("Downloaded all images")
+    if request.method == 'POST':
+        response = requests.get(url + username + '/images', auth=(username, password))
+        response = json.loads(response.text)
+        temp = ''
+        pri_key = []
+        for f in response:
+            if "_share_key.txt" in f[0]:
+                temp = f[0].replace(".txt", "")
+                res = requests.get(url + username + '/images/download/' + f[0], auth=(username, password))
+                res = json.loads(res.text)
+                for i in res:
+                    pri_key.append(i)
+                response.remove(f)
+
+                for i in response:
+                    if temp in i[0]:
+                        res = requests.get(url + username + '/images/download/' + i[0], auth=(username, password))
+                        res = json.loads(res.text)
+
+                        img = base64.b64decode(res['image'].encode('utf-8'))
+
+                        img_as_np = np.frombuffer(img, dtype=np.uint8)
+                        img = cv2.imdecode(img_as_np, cv2.IMREAD_COLOR)
+
+                        img = decrypt_image(img, int(pri_key[0]), int(pri_key[1]))
+                        img.save("images/" + i[0])
+                        response.remove(i)
+
+        for f in response:
+            if '_enc.txt' in f[0]:
+                res = requests.get(url + username + '/images/download/' + f[0], auth=(username, password))
+                res = json.loads(res.text)
+                # img = base64.b64decode(res['image'].encode('utf-8'))
+
+                res = res['enc'].split(';')
+                count = 4
+                enc = [[0 for x in range(int(res[3]))] for y in range(int(res[2]))]
+                for i in range(int(res[2])):
+                    for j in range(int(res[3])):
+                        if '[' in res[count]:
+                            res[count] = res[count].replace('[', '')
+                            res[count] = res[count].replace(']', '')
+                            enc[i][j] = [int(i) for i in res[count].split(',')]
+                        else:
+                            enc[i][j] = int(res[count])
+                        count += 1
+
+                img = decrypt_image((int(res[0]), int(res[1])), enc, int(priv_rsa[0]), int(priv_rsa[1]))
+                for files in response:
+                    if f[0].split('_')[0] in files[0]:
+                        cv2.imwrite('images/' + files[0], img)
+                        break
+        flash("Downloaded all images")
+    return 'OK'
 
 
 @app.route("/share", methods=['GET','POST'])
@@ -165,12 +198,14 @@ def share():
         response = json.loads(response.text)
         if response['status'] != 'true':
             flash(response['status'])
+    return redirect(url_for('home'))
+
 
 
 
 @app.route("/logout", methods=['GET','POST'])
 def logout():
-    response = requests.post(url + 'logout')
+    response = requests.post(url + 'logout', auth=(username, password))
     return redirect(url_for('login'))
 
 

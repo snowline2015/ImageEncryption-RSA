@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from PIL import Image
+import cv2
 
 
 def bezout(a, b, x2=1, x1=0, y2=0, y1=1):
@@ -51,10 +52,10 @@ def is_prime(n):
     return True
 
 
-def RSA_key_generation():
+def RSA_key_generation(length=2):
     p = q = 0
     while p == 0 or q == 0:
-        temp = random.randint(0, 10 ** 10)      # Could be 10 ** 128 -> 1024 bits
+        temp = random.randint(0, 10 ** length)
         if is_prime(temp):
             if p == 0:
                 p = temp
@@ -69,33 +70,51 @@ def RSA_key_generation():
     return e, n, d
 
 
-def encrypt_image(img, e, n):
-    img_en = np.array(img, dtype=np.uint32)
+def power(a,d,n):
+    ans = 1
+    while d != 0:
+        if d % 2 == 1:
+            ans = ((ans % n)*(a % n)) % n
+        a = ((a % n) * (a % n)) % n
+        d >>= 1
+    return ans
+
+
+def encrypt_image(img_path, E, N):
+    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     row, col = img.shape[0], img.shape[1]
-    # Start Encrypt
+    enc = [[0 for x in range(3000)] for y in range(3000)]
+
     for i in range(0, row):
         for j in range(0, col):
-            x = img_en[i][j]
-            x = pow(x.item(), e, n)
-            x = x % 256
-            img_en[i][j] = x
-    imgOut = Image.fromarray(img_en.astype(np.uint8))
-    # imgOut.show()
-    return imgOut
+            r, g, b = img[i, j]
+            C1 = power(r, E, N)
+            C2 = power(g, E, N)
+            C3 = power(b, E, N)
+            enc[i][j] = [C1, C2, C3]
+            C1 = C1 % 256
+            C2 = C2 % 256
+            C3 = C3 % 256
+            img[i, j] = [C1, C2, C3]
+    # cv2.imshow("image", img)
+    # cv2.waitKey(0)
+    return img, img.shape, enc
 
 
-def decrypt_image(encrypted_img, d, n):
-    img = np.array(Image.open(encrypted_img).convert('L'))
-    img_de = np.array(img, dtype=np.uint32)
-    r, c = img_de.shape[0], img_de.shape[1]
-    for i in range(0, r):
-        for j in range(0, c):
-            x = img_de[i][j]
-            x = pow(x, d) % n
-            img_de[i][j] = x
-    imgOut = Image.fromarray(img_de)
-    # imgOut.show()
-    return imgOut
+def decrypt_image(img_shape, enc, D, N):
+    row, col = img_shape[0], img_shape[1]
+    img = np.empty((row, col, 3))
+    for i in range(0, row):
+        for j in range(0, col):
+            r, g, b = enc[i][j]
+            M1 = power(r, D, N)
+            M2 = power(g, D, N)
+            M3 = power(b, D, N)
+            img[i, j] = [M1, M2, M3]
+    img = img.astype(np.uint8)
+    # cv2.imshow("image", img)
+    # cv2.waitKey(0)
+    return img
 
 
 # e, n, d = RSA_key_generation()
